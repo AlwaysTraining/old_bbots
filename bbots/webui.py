@@ -1,5 +1,5 @@
 
-class webui:
+class WebUi:
     def index(self):
         return "Hello world!"
 

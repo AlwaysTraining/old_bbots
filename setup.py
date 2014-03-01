@@ -31,8 +31,10 @@ setup(
     package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
-        'daemon'
+        'daemon','bbot'
     ],
+    dependency_links=[
+        'http://github.com/AlwaysTraining/bbot'],
     license="BSD",
     zip_safe=False,
     keywords='bbots',
