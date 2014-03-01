@@ -34,7 +34,8 @@ setup(
         'daemon','bbot'
     ],
     dependency_links=[
-        'https://github.com/AlwaysTraining/bbot.git'],
+        'git+https://github.com/AlwaysTraining/bbot.git#egg=bbot'
+        '.gzuuuuuu],
     license="BSD",
     zip_safe=False,
     keywords='bbots',
