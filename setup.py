@@ -31,6 +31,7 @@ setup(
     package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
+        'daemon'
     ],
     license="BSD",
     zip_safe=False,
