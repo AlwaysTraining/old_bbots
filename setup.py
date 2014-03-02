@@ -31,7 +31,7 @@ setup(
     package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
-        'daemon','bbot'
+        'daemon','bbot','cherrypy3',
     ],
     dependency_links=[
         'git+https://github.com/AlwaysTraining/bbot.git#egg=bbot-0.1'],

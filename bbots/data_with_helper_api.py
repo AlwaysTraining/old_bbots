@@ -1,6 +1,10 @@
 import gdata.spreadsheet.service
+from google_spreadsheet.api import SpreadsheetAPI
 import logging
 
+GOOGLE_SPREADSHEET_USER = "derrick.karimi@gmail.com"
+GOOGLE_SPREADSHEET_PASSWORD = "BootyPop!2"
+GOOGLE_SPREADSHEET_SOURCE = "bbots"
 
 def is_int(s):
     try:
@@ -62,20 +66,37 @@ class Data(object):
 
     def load_ss(self):
         logging.debug("Loading spreadsheet")
-        self.ss_key = '0AlItClzrqP_edHoxMmlOcTV3NHJTbU4wZDJGQXVTTXc'
-        self.ss = gdata.spreadsheet.service.SpreadsheetsService()
-        n3="myers"
-        n1="dr"
-        n2="randy"
-        p4="password"
-        uname='.'.join([n1,n2,n3])
-        self.ss.email = "@".join([uname,'gmail.com'])
-        self.ss.password = '.'.join([uname, p4])
-        self.ss.source = 'bbots'
-        self.ss.ProgrammaticLogin()
+        self.api = SpreadsheetAPI(GOOGLE_SPREADSHEET_USER,
+                                  GOOGLE_SPREADSHEET_PASSWORD,
+                                  GOOGLE_SPREADSHEET_SOURCE)
+        spreadsheets = self.api.list_spreadsheets()
 
-        self.ss_columns = self.query_columns()
-        self.ids = self.query_ids()
+
+        self.ss_key = None
+
+        for s in spreadsheets:
+            if s[0] == "bbots":
+                self.ss_key = s[1]
+                break
+
+        self.worksheets = self.api.list_worksheets(self.ss_key)
+
+        self.games_sheet = None
+
+        for w in self.worksheets:
+            if w[0] == 'games':
+                self.games_sheet = self.api.get_worksheet(
+                    self.ss_key, w[1])
+                break
+
+        self.games_sheet_rows = self.games_sheet.get_rows()
+        logging.debug("table data: " + str(self.games_sheet_rows))
+        self.ss_columns = self.games_sheet_rows[0]
+
+        self.ids = []
+        for r in self.games_sheet_rows:
+            self.ids.append(r['id'])
+
 
 
     def __init__(self, con):
@@ -87,12 +108,6 @@ class Data(object):
         self.load_ss()
 
 
-    def get_record_query(self, rec_id):
-        row = self.ids.index(rec_id) + 2
-        query = gdata.spreadsheet.service.CellQuery()
-        query.min_row = str(row)
-        query.max_row = str(row)
-        return query
 
     def get_record(self, id):
         """
@@ -100,7 +115,12 @@ class Data(object):
         in the cell for the row specified by id
         """
 
-        query = self.get_record_query(id)
+        record = self.games_sheet.get_rows(
+            filter_func=lambda row: row['id'] == id)[0]
+        logging.debug("ID: " + str(id) + ": " + str(record))
+
+        return record
+
 
         feed = self.get_feed(query)
 
@@ -125,7 +145,6 @@ class Data(object):
 
 
 
-        logging.debug("ID: " + str(id) + ": " + str(record))
         return record
 
     def record_game_failure(self, id):
@@ -134,8 +153,12 @@ class Data(object):
 
     def update_rec(self,rec):
 
-
         logging.debug("Updating row: " + str(rec))
+
+        self.games_sheet.update_row(rec)
+
+        return
+
 
         query = self.get_record_query(rec['id'])
         cells = self.ss.GetCellsFeed(self.ss_key, query=query,
@@ -143,20 +166,13 @@ class Data(object):
         )
         batchRequest = gdata.spreadsheet.SpreadsheetsCellsFeed()
 
-        n = 0
         for col in range(len(self.ss_columns)):
-            rhs = str(rec[self.ss_columns[col]])
-
-            if (cells.entry[col].cell.inputValue != rhs):
-
-                cells.entry[col].cell.inputValue = rhs
-                #logging.debug("new value of " + rec['id'] + "[" + self.ss_columns[
-                #    col] + "] is: " + rhs)
-                batchRequest.AddUpdate(cells.entry[col])
-                n = n + 1
+            cells.entry[col].cell.inputValue = str(rec[self.ss_columns[col]])
+            #logging.debug("new value of " + rec['id'] + "[" + self.ss_columns[
+            #    col] + "] is: " + str(rec[self.ss_columns[col]]))
+            batchRequest.AddUpdate(cells.entry[col])
 
 
         updated = self.ss.ExecuteBatch(batchRequest, cells.GetBatchLink().href)
         if updated:
-            logging.debug("Updated (" + str(n) + ") cells for id: " + str(rec[
-                'id']))
+            logging.debug("Updated: " + str(rec['id']))
