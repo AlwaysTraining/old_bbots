@@ -3,13 +3,15 @@
 
 import os
 import sys
-import glob
+from os import path
+from glob import glob
+
 
 def get_modules():
-    objdir = os.path.join(os.path.dirname(__file__), 'bbots/*.py')
+    objdir = path.join(path.dirname(__file__), 'bbots/*.py')
     mods = []
-    for f in glob(objdir):
-        name = os.path.splitext(os.path.basename(f))[0]
+    for file in glob(objdir):
+        name = path.splitext(path.basename(file))[0]
         if name == '__init__':
             continue
         mods.append("bbots." + name)
@@ -35,14 +37,17 @@ setup(
     author='Derrick Karimi',
     author_email='derrick.karimi@gmail.com',
     url='https://github.com/AlwaysTraining/bbots',
-    packages=get_modules(),
+    packages=[
+        'bbots',
+    ],
+    py_modules=get_modules(),
     package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
-        'bbot'
+        'daemon','bbot'
     ],
     dependency_links=[
-        'git+https://github.com/AlwaysTraining/bbot.git#egg=bbot'],
+        'git+https://github.com/AlwaysTraining/bbot.git#egg=bbot-0.1'],
     license="BSD",
     zip_safe=False,
     keywords='bbots',
