@@ -6,7 +6,7 @@ import sys
 import glob
 
 def get_modules():
-    objdir = os.path.join(path.dirname(__file__), 'bbots/*.py')
+    objdir = os.path.join(os.path.dirname(__file__), 'bbots/*.py')
     mods = []
     for file in glob(objdir):
         name = os.path.splitext(os.path.basename(file))[0]
