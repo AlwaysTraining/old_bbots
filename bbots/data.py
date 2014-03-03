@@ -1,8 +1,10 @@
 import gdata.spreadsheet.service
 import logging
-
+from datetime import datetime
 
 def is_int(s):
+    if s is None:
+        return False
     try:
         int(s)
         return True
@@ -11,12 +13,48 @@ def is_int(s):
 
 
 def is_float(s):
+    if s is None:
+        return False
     try:
         float(s)
         return True
     except ValueError:
         return False
 
+TIME_FORMAT_STR="%a %b %d %H:%M:%S %Y"
+
+def string_to_date(s):
+    return datetime.strptime(s, TIME_FORMAT_STR)
+def date_to_string(d):
+    return d.strftime(TIME_FORMAT_STR)
+
+def is_date(s):
+    if s is None:
+        return False
+    try:
+        string_to_date(s)
+        return True
+    except:
+        return False
+
+
+def string_to_bool(s):
+    ls = s.lower()
+    if ls == 'true':
+        return True
+    if ls == 'false':
+        return False
+
+    raise Exception("String is not a bool: " + str(s))
+
+def is_bool(s):
+    if s is None:
+        return False
+    try:
+        string_to_bool(s)
+        return True
+    except:
+        return False
 
 class Data(object):
 
@@ -38,7 +76,7 @@ class Data(object):
             if entry.cell:
                 cols.append(entry.cell.text)
 
-        logging.debug("Found columns:" + str(cols))
+        #logging.debug("Found columns:" + str(cols))
 
         return cols
 
@@ -92,6 +130,8 @@ class Data(object):
         query = gdata.spreadsheet.service.CellQuery()
         query.min_row = str(row)
         query.max_row = str(row)
+        query.max_col = str(len(self.ss_columns))
+        query.return_empty = "true"
         return query
 
     def get_record(self, id):
@@ -99,6 +139,8 @@ class Data(object):
         Get a dictionary, keys are spreadsheet headers, values are entries
         in the cell for the row specified by id
         """
+
+        logging.debug("Reading data for: " + id)
 
         query = self.get_record_query(id)
 
@@ -113,19 +155,24 @@ class Data(object):
 
             #logging.debug("Reading column: " + self.ss_columns[i] + " : "
             #              + entry.cell.text)
+
+            if entry.cell.text is None:
+                continue
+
             header = self.ss_columns[i]
-            if is_int(entry.cell.text):
+
+            if is_date(entry.cell.text):
+                record[header] = string_to_date(entry.cell.text)
+            elif is_int(entry.cell.text):
                 record[header] = int(entry.cell.text)
             elif is_float(entry.cell.text):
                 record[header] = float(entry.cell.text)
-
+            elif is_bool(entry.cell.text):
+                record[header] = string_to_bool(entry.cell.text)
             else:
                 record[header] = entry.cell.text
 
-
-
-
-        logging.debug("ID: " + str(id) + ": " + str(record))
+        # logging.debug("ID: " + str(id) + ": " + str(record))
         return record
 
     def record_game_failure(self, id):
@@ -135,7 +182,7 @@ class Data(object):
     def update_rec(self,rec):
 
 
-        logging.debug("Updating row: " + str(rec))
+        # logging.debug("Updating row: " + str(rec))
 
         query = self.get_record_query(rec['id'])
         cells = self.ss.GetCellsFeed(self.ss_key, query=query,
@@ -145,15 +192,22 @@ class Data(object):
 
         n = 0
         for col in range(len(self.ss_columns)):
-            rhs = str(rec[self.ss_columns[col]])
+            header = self.ss_columns[col]
+            if header in rec:
 
-            if (cells.entry[col].cell.inputValue != rhs):
+                obj = rec[header]
+                if isinstance(obj,datetime):
+                    rhs = date_to_string(obj)
+                else:
+                    rhs = str(rec[header])
 
-                cells.entry[col].cell.inputValue = rhs
-                #logging.debug("new value of " + rec['id'] + "[" + self.ss_columns[
-                #    col] + "] is: " + rhs)
-                batchRequest.AddUpdate(cells.entry[col])
-                n = n + 1
+                if (cells.entry[col].cell.inputValue != rhs):
+
+                    cells.entry[col].cell.inputValue = rhs
+                    #logging.debug("new value of " + rec['id'] + "[" + self.ss_columns[
+                    #    col] + "] is: " + rhs)
+                    batchRequest.AddUpdate(cells.entry[col])
+                    n = n + 1
 
 
         updated = self.ss.ExecuteBatch(batchRequest, cells.GetBatchLink().href)
