@@ -5,6 +5,16 @@ import os
 import sys
 
 
+def get_modules():
+    objdir = path.join(path.dirname(__file__), 'bbot/*.py')
+    mods = []
+    for file in glob(objdir):
+        name = path.splitext(path.basename(file))[0]
+        if name == '__init__':
+            continue
+        mods.append("bbots." + name)
+    return mods
+
 try:
     from setuptools import setup
 except ImportError:
@@ -25,16 +35,14 @@ setup(
     author='Derrick Karimi',
     author_email='derrick.karimi@gmail.com',
     url='https://github.com/AlwaysTraining/bbots',
-    packages=[
-        'bbots',
-    ],
+    packages=get_modules(),
     package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
-        'daemon','bbot','cherrypy3',
+        'bbot'
     ],
     dependency_links=[
-        'git+https://github.com/AlwaysTraining/bbot.git#egg=bbot-0.1'],
+        'git+https://github.com/AlwaysTraining/bbot.git#egg=bbot'],
     license="BSD",
     zip_safe=False,
     keywords='bbots',
