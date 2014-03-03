@@ -8,8 +8,8 @@ import glob
 def get_modules():
     objdir = os.path.join(os.path.dirname(__file__), 'bbots/*.py')
     mods = []
-    for file in glob(objdir):
-        name = os.path.splitext(os.path.basename(file))[0]
+    for f in glob(objdir):
+        name = os.path.splitext(os.path.basename(f))[0]
         if name == '__init__':
             continue
         mods.append("bbots." + name)
