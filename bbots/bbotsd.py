@@ -5,7 +5,7 @@ import sys, os
 import logging
 import time
 import cherrypy
-import bbots
+from bbots import BBots
 
 
 
@@ -17,7 +17,7 @@ def main():
         # filename='bbots.log',
         level=logging.DEBUG)
 
-    app = bbots.BBots()
+    app = BBots()
     wd = cherrypy.process.plugins.BackgroundTask(app.scheduler_period,
                                                  app.scheduler_task)
     wd.start()
