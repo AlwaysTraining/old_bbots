@@ -56,7 +56,7 @@ def is_bool(s):
     except:
         return False
 
-class Data(object):
+class WebData(object):
 
     def get_feed(self,query):
         return self.ss.GetCellsFeed(self.ss_key, query=query,
