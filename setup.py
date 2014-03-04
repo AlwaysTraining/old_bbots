@@ -28,6 +28,7 @@ setup(
     packages=[
         'bbots',
     ],
+    scripts=['bbots/bbotsd.py'],
     package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
