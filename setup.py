@@ -3,12 +3,28 @@
 
 import os
 import sys
-
+from distutils.core import setup
+from os import path
+from glob import glob
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
+
+
+def get_modules():
+    objdir = path.join(path.dirname(__file__), 'bbots/*.py')
+    mods = []
+    for f in glob(objdir):
+        name = path.splitext(path.basename(f))[0]
+        if name == '__init__':
+            continue
+        mods.append("bbots." + name)
+    print '__++__++__+',__file__, objdir, mods
+
+    return mods
+
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -25,17 +41,16 @@ setup(
     author='Derrick Karimi',
     author_email='derrick.karimi@gmail.com',
     url='https://github.com/AlwaysTraining/bbots',
-    packages=[
-        'bbots',
-    ],
+    packages=['bbots'],
+    py_modules=get_modules(),
     scripts=['bbots/bbotsd.py'],
-    package_dir={'bbots': 'bbots'},
+    #package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
         'daemon','gdata','bbot'
     ],
     dependency_links=[
-        'git+https://github.com/AlwaysTraining/bbot.git#egg=bbot-0.1'],
+        'git+https://github.com/AlwaysTraining/bbot.git#egg=bbot'],
     license="BSD",
     zip_safe=False,
     keywords='bbots',
