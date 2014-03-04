@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
-from bbots.data import Data
+from bbots.data import *
 from bbots.session import Session
 from bbots.webui import WebUi
 import random
