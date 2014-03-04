@@ -3,19 +3,7 @@
 
 import os
 import sys
-from os import path
-from glob import glob
 
-
-def get_modules():
-    objdir = path.join(path.dirname(__file__), 'bbots/*.py')
-    mods = []
-    for file in glob(objdir):
-        name = path.splitext(path.basename(file))[0]
-        if name == '__init__':
-            continue
-        mods.append("bbots." + name)
-    return mods
 
 try:
     from setuptools import setup
@@ -40,8 +28,6 @@ setup(
     packages=[
         'bbots',
     ],
-    py_modules=get_modules(),
-    scripts = ['bbots/bbotsd.py'],
     package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
