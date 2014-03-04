@@ -21,7 +21,6 @@ def get_modules():
         if name == '__init__':
             continue
         mods.append("bbots." + name)
-    print '__++__++__+',__file__, objdir, mods
 
     return mods
 
@@ -43,7 +42,7 @@ setup(
     url='https://github.com/AlwaysTraining/bbots',
     packages=['bbots'],
     py_modules=get_modules(),
-    scripts=['bbots/bbotsd.py'],
+    scripts=['bin/bbotsd.py'],
     package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
