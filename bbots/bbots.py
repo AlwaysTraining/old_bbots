@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import time
-from data import Data
-from session import Session
-from webui import WebUi
+from bbots.data import Data
+from bbots.session import Session
+from bbots.webui import WebUi
 import random
 import logging
 from datetime import datetime

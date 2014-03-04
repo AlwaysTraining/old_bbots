@@ -5,7 +5,7 @@ import sys, os
 import logging
 import time
 import cherrypy
-from bbots import BBots
+from bbots.bbots import BBots
 
 
 
