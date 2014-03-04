@@ -44,7 +44,7 @@ setup(
     packages=['bbots'],
     py_modules=get_modules(),
     scripts=['bbots/bbotsd.py'],
-    #package_dir={'bbots': 'bbots'},
+    package_dir={'bbots': 'bbots'},
     include_package_data=True,
     install_requires=[
         'daemon','gdata','bbot'
